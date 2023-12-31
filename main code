@@ -1,0 +1,49 @@
+#include <SoftwareSerial.h>
+#include <DFRobot_HuskyLens.h>
+#include <HUSKYLENS.h>
+#include <HUSKYLENSMindPlus.h>
+#include <HuskyLensProtocolCore.h>
+
+HUSKYLENS husky;
+void printresult (HUSKYLENSResult result);
+
+
+void setup() {
+  // put your setup code here, to run once:
+ Serial.begin(115200);
+ Wire.begin();
+ while (husky.begin(Wire))
+ {
+   Serial.println(F("cant start!"));
+   delay(100);
+ }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  HUSKYLENSResult result;
+ if (!husky.request()) Serial.println(F("cant get data"));
+ else if (!husky.isLearned()) Serial.println(F("i see something but i cant recognize it, press the butten to help me learn what it is"));
+ else if (!husky.available()) Serial.println(F("i cant see anything"));
+ else 
+ {
+   Serial.println(F("###########"));
+   while (husky.available()) 
+   {
+     HUSKYLENSResult result = husky.read();
+     printresult(result);
+   }
+ }
+}
+
+void printresult(HUSKYLENSResult result) {
+ 
+ if (result.command == COMMAND_RETURN_BLOCK && result.ID == 1){
+  husky.setCustomName("Raviv", 1);
+  Serial.println("hi Raviv");
+ }
+ else
+ {
+ Serial.println("thats not Raviv");
+ }
+}
